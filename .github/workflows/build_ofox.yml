@@ -39,7 +39,7 @@ jobs:
           repo --version # Gib die repo Version im Log aus
 
       - name: Configure Git for GitLab Anonymous Access # NEU: Git Konfiguration für GitLab
-        run: git config --global --http.https://gitlab.com/.proxy "" # Erlaube anonymen Zugriff für GitLab
+        run: git config --global --add http.noProxy gitlab.com # KORRIGIERT: Richtige Option für noProxy
 
       - name: Set up Swap Space # NEU: Swap Space einrichten
         run: |
