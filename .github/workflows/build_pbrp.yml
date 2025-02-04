@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Install dependencies
       run: |
@@ -38,7 +38,7 @@ jobs:
         mka recoveryimage
     
     - name: Upload recovery image
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: recovery.img
         path: pbrp_build/out/target/product/a52sxq/recovery.img
