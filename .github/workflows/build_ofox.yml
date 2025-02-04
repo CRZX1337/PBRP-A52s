@@ -20,15 +20,15 @@ jobs:
           distribution: 'temurin' # Korrekte Distribution für OpenJDK (ehemals AdoptOpenJDK)
           java-version: '8'
 
-      - name: Search for wxWidgets Packages # NEUER SCHRITT: Suche nach wxWidgets Paketen
+      - name: Search for wxWidgets Packages # NEUER SCHRITT: Suche nach wxWidgets Paketen (vorerst behalten - für Fehlersuche)
         run: |
           sudo apt-get update # Paketlisten aktualisieren, damit die Suche aktuell ist
           apt-cache search wxwidgets gtk3 dev # Suche nach relevanten Paketen
 
       - name: Install Dependencies
         run: |
-          sudo apt-get update # Ist eigentlich redundant, aber schadet nicht
-          sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick libncurses5-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev openjdk-8-jdk python3 python3-pip repo
+          sudo apt-get update # EINMALIG ausführen, am Anfang reicht!
+          sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick libncurses5-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk-dev libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev openjdk-8-jdk python3 python3-pip repo
 
       - name: Install Repo
         run: |
@@ -36,8 +36,27 @@ jobs:
           curl -s https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
           chmod a+x ~/.bin/repo
           export PATH=~/.bin:$PATH
+          repo --version # Gib die repo Version im Log aus
+
+      - name: Set up Swap Space # NEU: Swap Space einrichten
+        run: |
+          sudo fallocate -l 4G /swapfile
+          sudo chmod 600 /swapfile
+          sudo mkswap /swapfile
+          sudo swapon /swapfile
+          free -h # Gib die Speicherauslastung aus, um Swap zu überprüfen
+
+      - name: Cache Repo Sync # NEU: Caching für repo sync
+        uses: actions/cache@v3
+        id: cache-repo-sync
+        with:
+          path: orangefox # Ordner der gecached werden soll
+          key: repo-sync-${{ runner.os }}-${{ github.sha }} # Cache Key (wird bei Code-Änderungen invalidiert)
+          restore-keys: |
+            repo-sync-${{ runner.os }}-
 
       - name: Initialize Repo and Sync Source
+        if: steps.cache-repo-sync.outputs.cache-hit != 'true' # Nur syncen, wenn Cache nicht getroffen wurde
         run: |
           mkdir orangefox
           cd orangefox
