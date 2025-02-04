@@ -17,7 +17,7 @@ jobs:
       - name: Setup Java JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'jdk8' # OrangeFox benötigt in der Regel JDK 8
+          distribution: 'temurin' # KORRIGIERTE DISTRIBUTION: temurin statt jdk8
           java-version: '8'
 
       - name: Install Dependencies
