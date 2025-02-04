@@ -1,0 +1,66 @@
+name: Build OrangeFox Recovery for a52sxq
+
+on:
+  workflow_dispatch: # Ermöglicht manuelles Auslösen des Workflows über die GitHub-UI
+  push:
+    branches: [ main, master ] # Optional: Auslösen bei Push auf main oder master Branch
+  pull_request: # Optional: Auslösen bei Pull Requests
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Nutzt Ubuntu als Build-Umgebung
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'jdk8' # OrangeFox benötigt in der Regel JDK 8
+          java-version: '8'
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib64z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libwxgtk3.0-gtk3-dev libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev openjdk-8-jdk python3 python3-pip repo
+
+      - name: Install Repo
+        run: |
+          mkdir -p ~/.bin
+          curl -s https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
+          chmod a+x ~/.bin/repo
+          export PATH=~/.bin:$PATH
+
+      - name: Initialize Repo and Sync Source
+        run: |
+          mkdir orangefox
+          cd orangefox
+          repo init -u https://gitlab.com/OrangeFoxRecovery/platform_manifest.git -b stable # oder den Branch den du bauen möchtest (z.B. android-12.1)
+          repo sync -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+
+      - name: Checkout Device Tree
+        run: |
+          cd orangefox
+          mkdir -p device/samsung/a52sxq
+          git clone --depth=1 https://github.com/CRZX1337/orangefox_device_samsung_a52sxq.git device/samsung/a52sxq
+
+      - name: Setup Build Environment
+        run: |
+          cd orangefox
+          source build/envsetup.sh
+          lunch orangefox_a52sxq-eng # Stelle sicher, dass dies dein Lunch Target ist. Überprüfe dein Device Tree!
+
+      - name: Make Recovery Image
+        run: |
+          cd orangefox
+          mka recoveryimage
+
+      - name: Upload Recovery Image Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: orangefox-recovery-a52sxq
+          path: orangefox/out/target/product/a52sxq/recovery.img
+
+      - name: Output Success Message
+        run: echo "OrangeFox Recovery Build erfolgreich abgeschlossen!"
