@@ -1,27 +1,35 @@
-#!/usr/bin/env bash set -x
+#!/bin/bash
+set -x
 
-# Copyright (C) Harsh Shandilya <me@msfjarvis.dev>
-# SPDX-License-Identifier: GPL-3.0-only
+# Installs the necessary Android SDK components
 
-trap 'rm -rf /tmp/tools.zip 2>/dev/null' INT TERM EXIT
+# Stop on error
+set -e
 
-CUR_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
-CUR_DIR="${CUR_DIR/}"
-SDK_TOOLS=commandlinetools-linux-7583922_latest.zip
+# Check if SDK is already installed
+if [ -d ~/android-sdk-linux ]; then
+  echo "Android SDK already installed at ~/android-sdk-linux"
+  exit 0
+fi
 
-function setup_android_sdk() {
-    echo "Installing Android SDK"
-    SDK_DIR="${HOME:?}/Android/Sdk"
-    mkdir -p "${SDK_DIR}"
-    if [ ! -f "${SDK_TOOLS}" ]; then
-        wget https://dl.google.com/android/repository/"${SDK_TOOLS}" -O /tmp/tools.zip
-    fi
-    unzip -qo /tmp/tools.zip -d "${SDK_DIR}"
-    while read -r package; do
-        "${SDK_DIR}"/cmdline-tools/bin/sdkmanager --sdk_root="${SDK_DIR}" "${package:?}"
-    done < "${CUR_DIR}"/android-sdk-minimal.txt
-    rm /tmp/tools.zip
-    cd - || exit
-}
+echo "Installing Android SDK..."
 
-setup_android_sdk
+# Create SDK directory
+mkdir ~/android-sdk-linux
+
+# Download SDK command-line tools
+cd ~/android-sdk-linux
+wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip
+unzip commandlinetools-linux-10406996_latest.zip -d cmdline-tools
+rm commandlinetools-linux-10406996_latest.zip
+
+# Set SDK path
+export ANDROID_SDK_ROOT=~/android-sdk-linux
+echo "export ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> ~/.bashrc
+source ~/.bashrc
+
+# Install SDK components
+"${SDK_DIR}"/cmdline-tools/bin/sdkmanager --sdk_root="${SDK_DIR}" --licenses # HIER IST DIE ÄNDERUNG: --sdk_root hinzugefügt
+sdkmanager "platforms;android-31" "build-tools;31.0.0" "platform-tools"
+
+echo "Android SDK installation complete."
