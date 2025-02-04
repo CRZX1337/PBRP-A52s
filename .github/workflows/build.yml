@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Maximize build space
+    - name: Maximieren des Speicherplatzes
       uses: easimon/maximize-build-space@master
       with:
         root-reserve-mb: 8192
@@ -24,22 +24,22 @@ jobs:
         remove-haskell: 'true'
         remove-codeql: 'true'
 
-    - name: Install dependencies
+    - name: Abhängigkeiten installieren
       run: |
         sudo apt update
         sudo apt install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick libncurses-dev lib32z1-dev liblz4-tool libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-11-jdk pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev python3
 
-    - name: Install repo tool
+    - name: Repo-Tool installieren
       run: |
-        mkdir -p ~/.bin
-        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/.bin/repo
-        chmod a+x ~/.bin/repo
-        echo 'export PATH=$HOME/.bin:$PATH' >> $GITHUB_ENV
+        mkdir -p ~/bin
+        curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
+        chmod a+x ~/bin/repo
+        echo 'export PATH=$HOME/bin:$PATH' >> $GITHUB_ENV
 
-    - name: Checkout source
+    - name: Quellcode auschecken
       uses: actions/checkout@v3
 
-    - name: Sync OrangeFox source
+    - name: OrangeFox-Quellen synchronisieren
       run: |
         mkdir ~/orangefox
         cd ~/orangefox
@@ -47,12 +47,12 @@ jobs:
         cd sync
         ./orangefox_sync.sh --branch 12.1 --path ~/orangefox/fox_12.1
 
-    - name: Clone device trees
+    - name: Gerätedaten klonen
       run: |
         cd ~/orangefox/fox_12.1
         git clone https://github.com/CRZX1337/orangefox_device_samsung_a52sxq.git device/samsung/a52sxq
 
-    - name: Start build process
+    - name: Build-Prozess starten
       run: |
         cd ~/orangefox/fox_12.1
         export ALLOW_MISSING_DEPENDENCIES=true
@@ -61,7 +61,7 @@ jobs:
         source build/envsetup.sh
         lunch twrp_a52sxq-eng && mka adbd recoveryimage
 
-    - name: Upload recovery image
+    - name: Recovery-Image hochladen
       uses: actions/upload-artifact@v4
       with:
         name: OrangeFox-Recovery-a52sxq
