@@ -49,7 +49,7 @@ jobs:
         run: |
           cd orangefox
           source build/envsetup.sh
-          lunch orangefox_a52sxq-eng # Stelle sicher, dass dies dein Lunch Target ist. Überprüfe dein Device Tree!
+          lunch orangefox_a52sxq-eng # Lunch Target: orangefox_a52sxq-eng - KORREKT!
 
       - name: Make Recovery Image
         run: |
@@ -57,7 +57,7 @@ jobs:
           mka recoveryimage
 
       - name: Upload Recovery Image Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: orangefox-recovery-a52sxq
           path: orangefox/out/target/product/a52sxq/recovery.img
