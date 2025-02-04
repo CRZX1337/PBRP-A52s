@@ -1,0 +1,54 @@
+name: Build OrangeFox for Samsung A52s
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.2-dev libssl-dev libxml2 libxml2-utils lzop openjdk-11-jdk pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
+
+    - name: Sync OrangeFox source
+      run: |
+        mkdir ~/orangefox
+        cd ~/orangefox
+        git clone https://gitlab.com/OrangeFox/sync.git sync
+        cd sync
+        ./orangefox_sync.sh --branch 12.1 --path ~/orangefox/fox_12.1
+
+    - name: Clone device trees
+      run: |
+        cd ~/orangefox/fox_12.1
+        git clone https://github.com/CRZX1337/orangefox_device_samsung_a52sxq.git device/samsung/a52sxq
+
+    - name: Start build process
+      run: |
+        cd ~/orangefox/fox_12.1
+        export ALLOW_MISSING_DEPENDENCIES=true
+        export FOX_BUILD_DEVICE=a52sxq
+        export LC_ALL="C"
+        source build/envsetup.sh
+        lunch twrp_a52sxq-eng && mka adbd recoveryimage
+
+    - name: Upload recovery image
+      uses: actions/upload-artifact@v3
+      with:
+        name: OrangeFox-Recovery-a52sxq
+        path: ~/orangefox/fox_12.1/out/target/product/a52sxq/OrangeFox*.img
