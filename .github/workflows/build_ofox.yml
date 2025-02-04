@@ -1,4 +1,4 @@
-name: Build OrangeFox Recovery for a52sxq (Wiki Sync Method + Local SDK Script)
+name: Build OrangeFox Recovery for a52sxq (Wiki Sync Method + Local SDK Script + PWD Debug)
 
 on:
   workflow_dispatch: # Ermöglicht manuelles Auslösen des Workflows über die GitHub-UI
@@ -35,8 +35,9 @@ jobs:
           cd ~/scripts
           sudo bash setup/android_build_env.sh
 
-      - name: Run install_android_sdk.sh (Wiki Step 6) # Wiki Schritt 6: run install_android_sdk.sh - LOKALES SKRIPT!
+      - name: Run install_android_sdk.sh (Wiki Step 6) # Wiki Schritt 6: run install_android_sdk.sh - LOKALES SKRIPT! + PWD DEBUG
         run: |
+          pwd # NEU: Aktuellen Arbeitsordner ausgeben!
           # cd ~/scripts  <-- ENTFERNT: Falscher cd-Befehl im Workflow-Kontext
           sudo bash scripts/install_android_sdk.sh # Verwende LOKALES Skript!
 
