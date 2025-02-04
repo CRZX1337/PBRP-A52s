@@ -41,21 +41,21 @@ jobs:
 
     - name: OrangeFox-Quellen synchronisieren
       run: |
-        mkdir ~/orangefox
-        cd ~/orangefox
+        mkdir ~/OrangeFox_sync
+        cd ~/OrangeFox_sync
         git clone https://gitlab.com/OrangeFox/sync.git sync
         cd sync
         ~/bin/repo init -u https://gitlab.com/OrangeFox/manifest.git -b fox_12.1
         ~/bin/repo sync --force-sync --no-tags --no-clone-bundle --optimized-fetch
 
-    - name: Gerätedaten klonen
+    - name: Gerätedaten hinzufügen
       run: |
-        cd ~/orangefox/fox_12.1
+        cd ~/OrangeFox_sync/fox_12.1
         git clone https://github.com/CRZX1337/orangefox_device_samsung_a52sxq.git device/samsung/a52sxq
 
     - name: Build-Prozess starten
       run: |
-        cd ~/orangefox/fox_12.1
+        cd ~/OrangeFox_sync/fox_12.1
         export ALLOW_MISSING_DEPENDENCIES=true
         export FOX_BUILD_DEVICE=a52sxq
         export LC_ALL="C"
@@ -66,4 +66,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: OrangeFox-Recovery-a52sxq
-        path: ~/orangefox/fox_12.1/out/target/product/a52sxq/OrangeFox*.img
+        path: ~/OrangeFox_sync/fox_12.1/out/target/product/a52sxq/OrangeFox*.img
