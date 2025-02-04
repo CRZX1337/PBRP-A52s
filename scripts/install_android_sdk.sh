@@ -29,7 +29,7 @@ echo "export ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> ~/.bashrc
 source ~/.bashrc
 
 # Install SDK components
-"${SDK_DIR}"/cmdline-tools/bin/sdkmanager --sdk_root="${SDK_DIR}" --licenses # HIER IST DIE ÄNDERUNG: --sdk_root hinzugefügt
+# "${SDK_DIR}"/cmdline-tools/bin/sdkmanager --sdk_root="${SDK_DIR}" --licenses  <-- AUSKOMMENTIERT!
 sdkmanager "platforms;android-31" "build-tools;31.0.0" "platform-tools"
 
 echo "Android SDK installation complete."
