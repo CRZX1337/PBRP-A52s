@@ -1,4 +1,4 @@
-name: Build OrangeFox Recovery for a52sxq (Wiki Sync Method + Local SDK Script + PWD Debug)
+name: Build OrangeFox Recovery for a52sxq (Wiki Sync Method + Local SDK Script + PWD + LS DEBUG)
 
 on:
   workflow_dispatch: # Ermöglicht manuelles Auslösen des Workflows über die GitHub-UI
@@ -40,6 +40,11 @@ jobs:
           pwd # NEU: Aktuellen Arbeitsordner ausgeben!
           # cd ~/scripts  <-- ENTFERNT: Falscher cd-Befehl im Workflow-Kontext
           sudo bash scripts/install_android_sdk.sh # Verwende LOKALES Skript!
+
+      - name: List SDK cmdline-tools Directory Content # NEU: Verzeichnisinhalt ausgeben - LS DEBUG
+        run: |
+          ls -l ~/android-sdk-linux/cmdline-tools # Inhalt von cmdline-tools auflisten
+          ls -l ~/android-sdk-linux/cmdline-tools/bin # Inhalt von cmdline-tools/bin auflisten (falls vorhanden)
 
       - name: Install Dependencies (Redundant? - erstmal behalten) # Ergänzende Dependencies (könnte redundant sein, aber sicher ist sicher)
         run: |
