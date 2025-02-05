@@ -16,13 +16,20 @@ jobs:
     - name: Maximieren des Speicherplatzes
       uses: easimon/maximize-build-space@master
       with:
-        root-reserve-mb: 8192
-        temp-reserve-mb: 2048
-        swap-size-mb: 8192
-        remove-dotnet: 'true'
-        remove-android: 'true'
-        remove-haskell: 'true'
-        remove-codeql: 'true'
+        root-reserve-mb: 512 # Minimale Reserve für das Root-Dateisystem
+        temp-reserve-mb: 1024 # Minimale Reserve für temporäre Dateien
+        swap-size-mb: 8192 # Erhöht den Swap-Speicher
+        remove-dotnet: 'true' # Entfernt .NET-Runtime (ca. 2 GB)
+        remove-android: 'true' # Entfernt Android SDKs und Tools (ca. 9 GB)
+        remove-haskell: 'true' # Entfernt Haskell-Pakete (ca. 5 GB)
+        remove-codeql: 'true' # Entfernt CodeQL-Bundles (ca. 5 GB)
+
+    - name: Zusätzlichen Speicherplatz freigeben
+      run: |
+        echo "Freigeben von zusätzlichem Speicherplatz..."
+        sudo rm -rf /usr/share/dotnet
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
 
     - name: Abhängigkeiten installieren
       run: |
